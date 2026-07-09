@@ -1,0 +1,20 @@
+.info-card {
+  background: white;
+  border-radius: 1rem;
+  padding: 1.2rem;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+}
+
+.info-card h3 {
+  margin-top: 0;
+}
+
+.info-card ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: #334155;
+}
+
+.info-card li + li {
+  margin-top: 0.5rem;
+}

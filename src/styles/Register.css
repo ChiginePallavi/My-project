@@ -1,0 +1,181 @@
+.register-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.register-card {
+  background: white;
+  border-radius: 24px;
+  padding: 2rem;
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.08);
+}
+
+.register-card__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.eyebrow {
+  font-size: 0.9rem;
+  color: #2563eb;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.5rem;
+}
+
+.register-status {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.badge {
+  padding: 0.6rem 1rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.badge.success {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.badge.loading {
+  background: #e0f2fe;
+  color: #0c4a6e;
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.form-field.full-width {
+  grid-column: span 2;
+}
+
+.form-field input,
+.form-field select,
+.form-field textarea {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 16px;
+  padding: 0.9rem 1rem;
+  font: inherit;
+  background: #f8fafc;
+}
+
+.form-field input[type='file'] {
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+
+.field-error {
+  color: #b91c1c;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.field-hint {
+  color: #475569;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.counter {
+  text-align: right;
+}
+
+.password-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.75rem;
+}
+
+.toggle-password {
+  border: 1px solid #cbd5e1;
+  background: white;
+  border-radius: 16px;
+  padding: 0 1rem;
+  cursor: pointer;
+  color: #0f172a;
+}
+
+.field-hint.strength.weak {
+  color: #b91c1c;
+}
+
+.field-hint.strength.moderate {
+  color: #f59e0b;
+}
+
+.field-hint.strength.strong {
+  color: #16a34a;
+}
+
+.form-terms {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  font-size: 0.95rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.submission-summary {
+  background: white;
+  border-radius: 24px;
+  padding: 1.75rem;
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.08);
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.summary-grid p {
+  margin: 0.5rem 0;
+  line-height: 1.4;
+}
+
+.summary-grid .full-width {
+  grid-column: span 2;
+}
+
+@media (max-width: 900px) {
+  .form-grid,
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .register-card__header {
+    align-items: flex-start;
+  }
+}
