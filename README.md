@@ -1,32 +1,34 @@
 # Placement Eligibility Predictor
 
 ## Project Title and Description
-Placement Eligibility Predictor is a React + Vite frontend project that presents a student-friendly placement dashboard. It now includes dynamic routing, API-backed cards, loading and error states, local storage persistence, and a polished details experience.
+Placement Eligibility Predictor is a React + Vite frontend project that presents a student-friendly placement dashboard. It now includes persistent authentication, theme preferences, session tracking, and full CRUD management for placement opportunities without a backend.
 
 ## New Features
-- Dynamic dashboard cards fetched from the DummyJSON products API
-- View buttons that navigate to a dedicated details page using route parameters
-- Loading, empty, and error states for a smoother user experience
-- Local storage support for cached records and recently viewed items
-- Custom 404 page with wildcard redirects
+- Persistent login state using Local Storage
+- Auto-login on refresh and logout clearing stored auth data
+- Light/Dark theme persistence using Local Storage
+- Session Storage tracking for the last visited page and active search term
+- Full CRUD support for placement records: add, edit, delete, and undo delete
+- JSON import/export for local records
+- Recent activity feed and dynamic record management UI
 
-## APIs Used
-- DummyJSON Products API for dynamic placement opportunity data
+## Storage Mechanisms
+- Local Storage: saved login user, theme preference, records, recently viewed items, and activity log
+- Session Storage: last visited page and current search term during the active browser session
 
 ## React Concepts Implemented
 - Dynamic Routing
 - Route Parameters and useParams()
 - Dynamic URL Navigation with useNavigate()
-- useEffect() for API calls and side effects
-- Loading state management
-- Error handling with conditional rendering
-- Local Storage persistence
-- 404 page and wildcard route handling
+- useEffect() for persistence and side effects
+- Controlled forms and CRUD state management
+- Local Storage and Session Storage integration
+- Responsive UI and conditional rendering
 
 ## Screenshots
-- Dashboard overview with live API cards
-- Dynamic details page for each selected opportunity
-- Friendly 404 experience for unknown URLs
+- Dashboard overview with searchable opportunity cards
+- CRUD form for creating and updating records
+- Confirmation modal for delete actions and undo restore banner
 
 ## How to Run
 1. Install dependencies: npm install
@@ -35,5 +37,5 @@ Placement Eligibility Predictor is a React + Vite frontend project that presents
 
 ## GitHub Submission Notes
 - Continue using the same repository and push the updated implementation.
-- Include meaningful commits for routing, API integration, loading states, and local storage.
+- Include meaningful commits for auth persistence, theme support, CRUD, and storage integration.
 - Do not upload node_modules or environment files.
