@@ -24,6 +24,7 @@
 
 .navbar__links {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.75rem;
 }
 
@@ -33,6 +34,7 @@
   color: #334155;
   font-weight: 600;
   cursor: pointer;
+  text-decoration: none;
 }
 
 .nav-link.active {

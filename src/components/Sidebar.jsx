@@ -1,24 +1,25 @@
+import { NavLink } from 'react-router-dom'
 import './Sidebar.css'
 
-function Sidebar({ currentPage, onNavigate }) {
+function Sidebar() {
   const items = [
     {
-      id: 'home',
+      to: '/',
       title: 'Overview',
       description: 'Welcome to the predictor experience.',
     },
     {
-      id: 'dashboard',
+      to: '/dashboard',
       title: 'Scoreboard',
       description: 'Track progress and eligibility insights.',
     },
     {
-      id: 'register',
+      to: '/register',
       title: 'Register',
       description: 'Complete your application with validation.',
     },
     {
-      id: 'login',
+      to: '/login',
       title: 'Login',
       description: 'Sign in to access your eligibility details.',
     },
@@ -29,15 +30,15 @@ function Sidebar({ currentPage, onNavigate }) {
       <h2>Project Sections</h2>
       <ul>
         {items.map((item) => (
-          <li key={item.id}>
-            <button
-              className={`sidebar__item ${currentPage === item.id ? 'active' : ''}`}
-              onClick={() => onNavigate(item.id)}
-              type="button"
+          <li key={item.to}>
+            <NavLink
+              to={item.to}
+              end={item.to === '/'}
+              className={({ isActive }) => `sidebar__item${isActive ? ' active' : ''}`}
             >
               <span>{item.title}</span>
               <small>{item.description}</small>
-            </button>
+            </NavLink>
           </li>
         ))}
       </ul>

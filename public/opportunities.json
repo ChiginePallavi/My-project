@@ -1,0 +1,54 @@
+[
+  {
+    "id": 1,
+    "title": "Frontend Developer Intern",
+    "company": "TechNova",
+    "category": "Internship",
+    "description": "Work on responsive web interfaces and collaborate with the product team on student-focused portals.",
+    "status": "Open",
+    "eligibility": "B.Tech Final Year",
+    "location": "Hybrid - Bengaluru",
+    "deadline": "20 Jul 2026",
+    "package": "₹25k/month",
+    "image": "https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": 2,
+    "title": "Data Analyst Trainee",
+    "company": "SkillBridge",
+    "category": "Trainee",
+    "description": "Analyze placement trends and build dashboards that help improve student readiness reports.",
+    "status": "Open",
+    "eligibility": "Any Engineering Stream",
+    "location": "Remote",
+    "deadline": "25 Jul 2026",
+    "package": "₹30k/month",
+    "image": "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": 3,
+    "title": "Software Engineer Placement Drive",
+    "company": "CodeSprint Labs",
+    "category": "Full Time",
+    "description": "Join the engineering team to build scalable frontend and backend solutions for education products.",
+    "status": "Upcoming",
+    "eligibility": "CGPA 7.0+",
+    "location": "Pune",
+    "deadline": "02 Aug 2026",
+    "package": "₹8 LPA",
+    "image": "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": 4,
+    "title": "UI/UX Designer Intern",
+    "company": "CampusConnect",
+    "category": "Internship",
+    "description": "Design clean student dashboards and improve the user experience of career portals.",
+    "status": "Open",
+    "eligibility": "Design or CS Background",
+    "location": "Delhi",
+    "deadline": "18 Jul 2026",
+    "package": "₹20k/month",
+    "image": "https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=800&q=80"
+  }
+]

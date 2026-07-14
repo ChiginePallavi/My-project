@@ -1,35 +1,49 @@
+import { NavLink, useNavigate } from 'react-router-dom'
 import Button from './Button'
 import './Navbar.css'
 
-function Navbar({ currentPage, onNavigate }) {
+function Navbar({ isLoggedIn, onLogout }) {
+  const navigate = useNavigate()
   const links = [
-    { id: 'home', label: 'Home' },
-    { id: 'dashboard', label: 'Dashboard' },
-    { id: 'register', label: 'Register' },
-    { id: 'login', label: 'Login' },
+    { to: '/', label: 'Home', end: true },
+    { to: '/dashboard', label: 'Dashboard' },
+    { to: '/about', label: 'About' },
+    { to: '/register', label: 'Register' },
+    { to: '/login', label: 'Login' },
   ]
 
   return (
     <header className="navbar">
       <div>
-        <p className="navbar__eyebrow">React Fundamentals</p>
+        <p className="navbar__eyebrow">React Router Practice</p>
         <h1>Placement Eligibility Predictor</h1>
       </div>
 
       <nav className="navbar__links" aria-label="Primary navigation">
         {links.map((link) => (
-          <button
-            key={link.id}
-            className={`nav-link ${currentPage === link.id ? 'active' : ''}`}
-            onClick={() => onNavigate(link.id)}
-            type="button"
+          <NavLink
+            key={link.to}
+            to={link.to}
+            end={link.end}
+            className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
           >
             {link.label}
-          </button>
+          </NavLink>
         ))}
       </nav>
 
-      <Button label="Get Started" variant="secondary" />
+      {isLoggedIn ? (
+        <Button
+          label="Logout"
+          variant="secondary"
+          onClick={() => {
+            onLogout()
+            navigate('/login')
+          }}
+        />
+      ) : (
+        <Button label="Get Started" variant="secondary" onClick={() => navigate('/register')} />
+      )}
     </header>
   )
 }

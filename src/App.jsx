@@ -1,11 +1,13 @@
 import { useState } from 'react'
-import Navbar from './components/Navbar'
-import Sidebar from './components/Sidebar'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import Layout from './components/Layout'
 import Home from './pages/Home'
-import Dashboard from './pages/Dashboard'
+import Dashboard, { DashboardOverview, DashboardProfile, DashboardSettings } from './pages/Dashboard'
 import Register from './pages/Register'
 import Login from './pages/login/login.jsx'
-import Footer from './components/Footer'
+import About from './pages/About'
+import Details from './pages/Details'
+import NotFound from './pages/NotFound'
 import './App.css'
 
 export const appHighlights = [
@@ -14,32 +16,59 @@ export const appHighlights = [
   'Vite-powered React app shell',
 ]
 
-function App() {
-  const [activePage, setActivePage] = useState('login')
+function ProtectedRoute({ isLoggedIn, children }) {
+  if (!isLoggedIn) {
+    return <Navigate to="/login" replace />
+  }
+
+  return children
+}
+
+function AppRoutes() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
 
   return (
     <div className="app-shell">
-      <Navbar currentPage={activePage} onNavigate={setActivePage} />
-
-      <div className="app-content">
-        <Sidebar currentPage={activePage} onNavigate={setActivePage} />
-        <div className="main-panel">
-          {activePage === 'home' ? (
-            <Home onNavigate={setActivePage} />
-          ) : activePage === 'dashboard' ? (
-            <Dashboard />
-          ) : activePage === 'register' ? (
-            <Register />
-          ) : activePage === 'login' ? (
-            <Login onNavigate={setActivePage} />
-          ) : (
-            <Home onNavigate={setActivePage} />
-          )}
-        </div>
-      </div>
-
-      <Footer />
+      <Routes>
+        <Route element={<Layout isLoggedIn={isLoggedIn} onLogout={() => setIsLoggedIn(false)} />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login onLogin={() => setIsLoggedIn(true)} />} />
+          <Route
+            path="/dashboard/*"
+            element={
+              <ProtectedRoute isLoggedIn={isLoggedIn}>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<DashboardOverview />} />
+            <Route path="overview" element={<DashboardOverview />} />
+            <Route path="profile" element={<DashboardProfile />} />
+            <Route path="settings" element={<DashboardSettings />} />
+          </Route>
+          <Route
+            path="/details/:id"
+            element={
+              <ProtectedRoute isLoggedIn={isLoggedIn}>
+                <Details />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/not-found" element={<NotFound />} />
+          <Route path="*" element={<Navigate to="/not-found" replace />} />
+        </Route>
+      </Routes>
     </div>
+  )
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
   )
 }
 

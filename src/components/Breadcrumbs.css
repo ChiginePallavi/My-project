@@ -1,0 +1,25 @@
+.breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.75rem 0;
+  color: #475569;
+  font-size: 0.95rem;
+}
+
+.breadcrumbs a {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.breadcrumb-current {
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.breadcrumb-separator {
+  color: #64748b;
+  margin: 0 0.2rem;
+}

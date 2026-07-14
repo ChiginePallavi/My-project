@@ -1,14 +1,16 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import './login.css'
 
-function Login({ onNavigate }) {
+function Login({ onLogin }) {
+  const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const validEmail = 'student@example.com'
-  const validPassword = 'Password123!'
+  const validPassword = 'Password123'
 
   const handleSubmit = (event) => {
     event.preventDefault()
@@ -27,10 +29,10 @@ function Login({ onNavigate }) {
     setIsSubmitting(true)
     setTimeout(() => {
       setIsSubmitting(false)
-      alert('Login successful!')
-      if (typeof onNavigate === 'function') {
-        onNavigate('dashboard')
+      if (typeof onLogin === 'function') {
+        onLogin()
       }
+      navigate('/dashboard')
     }, 600)
   }
 
@@ -40,7 +42,6 @@ function Login({ onNavigate }) {
         <div className="login-card__header">
           <p className="eyebrow">Welcome Back</p>
           <h2>Login to your account</h2>
-          {/* <p>Enter your credentials to continue to the placement eligibility dashboard.</p> */}
         </div>
 
         <form className="login-form" onSubmit={handleSubmit} noValidate>
