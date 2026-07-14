@@ -2,7 +2,7 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import Button from './Button'
 import './Navbar.css'
 
-function Navbar({ isLoggedIn, onLogout }) {
+function Navbar({ isLoggedIn, onLogout, theme, onToggleTheme, activeUser }) {
   const navigate = useNavigate()
   const links = [
     { to: '/', label: 'Home', end: true },
@@ -32,18 +32,24 @@ function Navbar({ isLoggedIn, onLogout }) {
         ))}
       </nav>
 
-      {isLoggedIn ? (
-        <Button
-          label="Logout"
-          variant="secondary"
-          onClick={() => {
-            onLogout()
-            navigate('/login')
-          }}
-        />
-      ) : (
-        <Button label="Get Started" variant="secondary" onClick={() => navigate('/register')} />
-      )}
+      <div className="navbar__actions">
+        {activeUser ? <span className="navbar__user">Hi, {activeUser.displayName}</span> : null}
+        <button className="theme-toggle" type="button" onClick={onToggleTheme}>
+          {theme === 'dark' ? '☀️ Light' : '🌙 Dark'}
+        </button>
+        {isLoggedIn ? (
+          <Button
+            label="Logout"
+            variant="secondary"
+            onClick={() => {
+              onLogout()
+              navigate('/login')
+            }}
+          />
+        ) : (
+          <Button label="Get Started" variant="secondary" onClick={() => navigate('/register')} />
+        )}
+      </div>
     </header>
   )
 }

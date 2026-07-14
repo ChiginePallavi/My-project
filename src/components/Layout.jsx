@@ -5,7 +5,7 @@ import Sidebar from './Sidebar'
 import Footer from './Footer'
 import Breadcrumbs from './Breadcrumbs'
 
-function Layout({ isLoggedIn, onLogout }) {
+function Layout({ isLoggedIn, onLogout, theme, onToggleTheme, activeUser }) {
   const location = useLocation()
 
   useEffect(() => {
@@ -22,9 +22,19 @@ function Layout({ isLoggedIn, onLogout }) {
     document.title = routeTitle
   }, [location.pathname])
 
+  useEffect(() => {
+    sessionStorage.setItem('placement-last-page', location.pathname)
+  }, [location.pathname])
+
   return (
     <>
-      <Navbar isLoggedIn={isLoggedIn} onLogout={onLogout} />
+      <Navbar
+        isLoggedIn={isLoggedIn}
+        onLogout={onLogout}
+        theme={theme}
+        onToggleTheme={onToggleTheme}
+        activeUser={activeUser}
+      />
       <div className="app-content">
         <Sidebar />
         <div className="main-panel">

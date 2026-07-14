@@ -4,9 +4,10 @@
   align-items: center;
   gap: 1rem;
   padding: 1rem 1.5rem;
-  background: white;
+  background: var(--surface);
   border-radius: 1rem;
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+  border: 1px solid var(--border);
 }
 
 .navbar__eyebrow {
@@ -31,19 +32,44 @@
 .nav-link {
   border: none;
   background: transparent;
-  color: #334155;
+  color: var(--text-muted);
   font-weight: 600;
   cursor: pointer;
   text-decoration: none;
 }
 
 .nav-link.active {
-  color: #2563eb;
+  color: var(--accent);
+}
+
+.navbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.navbar__user {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.theme-toggle {
+  border: 1px solid var(--border);
+  background: var(--surface-soft);
+  color: var(--text-primary);
+  border-radius: 999px;
+  padding: 0.55rem 0.9rem;
+  cursor: pointer;
 }
 
 @media (max-width: 768px) {
   .navbar {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .navbar__actions {
+    width: 100%;
   }
 }

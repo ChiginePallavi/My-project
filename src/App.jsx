@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import Layout from './components/Layout'
 import Home from './pages/Home'
@@ -9,6 +9,9 @@ import About from './pages/About'
 import Details from './pages/Details'
 import NotFound from './pages/NotFound'
 import './App.css'
+
+const AUTH_STORAGE_KEY = 'placement-auth-user'
+const THEME_STORAGE_KEY = 'placement-theme'
 
 export const appHighlights = [
   'Component-based structure',
@@ -25,16 +28,73 @@ function ProtectedRoute({ isLoggedIn, children }) {
 }
 
 function AppRoutes() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    if (typeof window === 'undefined') {
+      return false
+    }
+
+    return Boolean(localStorage.getItem(AUTH_STORAGE_KEY))
+  })
+  const [activeUser, setActiveUser] = useState(() => {
+    if (typeof window === 'undefined') {
+      return null
+    }
+
+    try {
+      return JSON.parse(localStorage.getItem(AUTH_STORAGE_KEY) || 'null')
+    } catch {
+      return null
+    }
+  })
+  const [theme, setTheme] = useState(() => {
+    if (typeof window === 'undefined') {
+      return 'light'
+    }
+
+    return localStorage.getItem(THEME_STORAGE_KEY) || 'light'
+  })
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+    localStorage.setItem(THEME_STORAGE_KEY, theme)
+  }, [theme])
+
+  const handleLogin = (user) => {
+    const nextUser = {
+      email: user.email,
+      displayName: user.displayName || user.email.split('@')[0],
+      loginAt: new Date().toISOString(),
+    }
+
+    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(nextUser))
+    setActiveUser(nextUser)
+    setIsLoggedIn(true)
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem(AUTH_STORAGE_KEY)
+    setActiveUser(null)
+    setIsLoggedIn(false)
+  }
 
   return (
-    <div className="app-shell">
+    <div className="app-shell" data-theme={theme}>
       <Routes>
-        <Route element={<Layout isLoggedIn={isLoggedIn} onLogout={() => setIsLoggedIn(false)} />}>
+        <Route
+          element={
+            <Layout
+              isLoggedIn={isLoggedIn}
+              onLogout={handleLogout}
+              theme={theme}
+              onToggleTheme={() => setTheme((current) => (current === 'dark' ? 'light' : 'dark'))}
+              activeUser={activeUser}
+            />
+          }
+        >
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login onLogin={() => setIsLoggedIn(true)} />} />
+          <Route path="/login" element={<Login onLogin={handleLogin} isLoggedIn={isLoggedIn} />} />
           <Route
             path="/dashboard/*"
             element={

@@ -1,16 +1,23 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './login.css'
 
-function Login({ onLogin }) {
+function Login({ onLogin, isLoggedIn }) {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [statusMessage, setStatusMessage] = useState('')
 
   const validEmail = 'student@example.com'
   const validPassword = 'Password123'
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate('/dashboard', { replace: true })
+    }
+  }, [isLoggedIn, navigate])
 
   const handleSubmit = (event) => {
     event.preventDefault()
@@ -27,11 +34,14 @@ function Login({ onLogin }) {
     }
 
     setIsSubmitting(true)
+    setStatusMessage('Signing you in and saving your session...')
+
     setTimeout(() => {
       setIsSubmitting(false)
       if (typeof onLogin === 'function') {
-        onLogin()
+        onLogin({ email, displayName: email.split('@')[0] })
       }
+      sessionStorage.setItem('placement-last-page', '/dashboard')
       navigate('/dashboard')
     }, 600)
   }
@@ -66,6 +76,7 @@ function Login({ onLogin }) {
           </label>
 
           {error && <p className="field-error">{error}</p>}
+          {statusMessage && !error ? <p className="field-success">{statusMessage}</p> : null}
 
           <button className="btn btn-primary" type="submit" disabled={isSubmitting}>
             {isSubmitting ? 'Signing in...' : 'Sign In'}
@@ -77,3 +88,4 @@ function Login({ onLogin }) {
 }
 
 export default Login
+
