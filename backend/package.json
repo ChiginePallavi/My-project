@@ -1,0 +1,14 @@
+{
+  "name": "placement-eligibility-predictor-backend",
+  "version": "1.0.0",
+  "description": "REST API for the Placement Eligibility Predictor project",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "node --watch app.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}

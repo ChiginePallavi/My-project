@@ -10,8 +10,8 @@ function Login({ onLogin, isLoggedIn }) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [statusMessage, setStatusMessage] = useState('')
 
-  const validEmail = 'student@example.com'
-  const validPassword = 'Password123'
+  const validEmail = 'pallavi@gmail.com'
+  const validPassword = 'Pallavi@221206'
 
   useEffect(() => {
     if (isLoggedIn) {

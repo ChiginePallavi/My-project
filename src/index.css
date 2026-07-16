@@ -2,8 +2,8 @@
   font-family: Inter, 'Segoe UI', Roboto, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color: #0f172a;
-  background-color: #f1f5f9;
+  color: #f8fafc;
+  background-color: #0b1220;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -18,7 +18,23 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%);
+  background: linear-gradient(135deg, #040617 0%, #111827 100%);
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
+button {
+  font: inherit;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
 }
 
 #root {

@@ -48,10 +48,10 @@ function AppRoutes() {
   })
   const [theme, setTheme] = useState(() => {
     if (typeof window === 'undefined') {
-      return 'light'
+      return 'dark'
     }
 
-    return localStorage.getItem(THEME_STORAGE_KEY) || 'light'
+    return localStorage.getItem(THEME_STORAGE_KEY) || 'dark'
   })
 
   useEffect(() => {
