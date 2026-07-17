@@ -4,7 +4,6 @@ import { requestLogger } from './middleware/logger.js';
 import { notFoundHandler, errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
-const PORT = process.env.PORT || 5000;
 
 app.use(requestLogger);
 app.use(express.json());
@@ -15,9 +14,14 @@ app.get('/', (req, res) => {
     version: '1.0.0',
     endpoints: {
       opportunities: '/api/opportunities',
-      search: '/api/opportunities/search?name=tech'
+      search: '/api/opportunities/search?name=tech',
+      health: '/health'
     }
   });
+});
+
+app.get('/health', (req, res) => {
+  res.status(200).json({ success: true, message: 'API is healthy' });
 });
 
 app.use('/api/opportunities', opportunityRoutes);
@@ -25,6 +29,4 @@ app.use('/api/opportunities', opportunityRoutes);
 app.use(notFoundHandler);
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  console.log(`Backend server running on http://localhost:${PORT}`);
-});
+export default app;
