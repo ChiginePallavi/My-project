@@ -1,6 +1,6 @@
 export const opportunities = [
   {
-    id: 1,
+    id: 101,
     title: 'Frontend Developer Intern',
     company: 'TechNova',
     category: 'Internship',
@@ -12,10 +12,10 @@ export const opportunities = [
     package: '₹25k/month'
   },
   {
-    id: 2,
+    id: 102,
     title: 'Data Analyst Trainee',
-    company: 'SkillBridge',
-    category: 'Trainee',
+    company: 'Wipro',
+    category: 'Training',
     description: 'Analyze placement trends and build dashboards that help improve student readiness reports.',
     status: 'Open',
     eligibility: 'Any Engineering Stream',
@@ -24,9 +24,9 @@ export const opportunities = [
     package: '₹30k/month'
   },
   {
-    id: 3,
+    id: 103,
     title: 'Software Engineer Placement Drive',
-    company: 'CodeSprint Labs',
+    company: 'Infosys',
     category: 'Full Time',
     description: 'Join the engineering team to build scalable frontend and backend solutions for education products.',
     status: 'Upcoming',
