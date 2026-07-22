@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { getOpportunityById } from '../services/api'
 import '../styles/Dashboard.css'
-
-const LOCAL_STORAGE_KEY = 'placement-opportunities'
-const RECENTLY_VIEWED_KEY = 'placement-recently-viewed'
 
 function Details() {
   const { id } = useParams()
@@ -18,31 +16,8 @@ function Details() {
       setError('')
 
       try {
-        const cachedRecords = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]')
-        const cachedRecord = cachedRecords.find((item) => String(item.id) === String(id))
-
-        if (cachedRecord) {
-          setRecord(cachedRecord)
-        }
-
-        const response = await fetch('/opportunities.json')
-        if (!response.ok) {
-          throw new Error('The requested detail could not be loaded.')
-        }
-
-        const opportunities = await response.json()
-        const nextRecord = opportunities.find((item) => String(item.id) === String(id)) || null
-        setRecord(nextRecord)
-
-        const nextCachedRecords = [...cachedRecords.filter((item) => String(item.id) !== String(id)), ...(nextRecord ? [nextRecord] : [])]
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(nextCachedRecords))
-
-        const viewed = JSON.parse(localStorage.getItem(RECENTLY_VIEWED_KEY) || '[]')
-        const nextViewed = [
-          { id: nextRecord?.id, title: nextRecord?.title, category: nextRecord?.category },
-          ...viewed.filter((item) => item.id !== nextRecord?.id),
-        ].filter(Boolean).slice(0, 4)
-        localStorage.setItem(RECENTLY_VIEWED_KEY, JSON.stringify(nextViewed))
+        const response = await getOpportunityById(id)
+        setRecord(response.data)
       } catch (err) {
         setError(err.message || 'Something went wrong while loading the details page.')
       } finally {
@@ -92,7 +67,7 @@ function Details() {
           <div className="detail-grid">
             <div>
               <strong>ID</strong>
-              <span>#{record.id}</span>
+              <span>#{record.id || record._id}</span>
             </div>
             <div>
               <strong>Category</strong>

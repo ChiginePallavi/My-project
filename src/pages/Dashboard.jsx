@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import StatCard from '../components/StatCard'
 import InfoCard from '../components/InfoCard'
+import { createOpportunity, deleteOpportunity, getOpportunityById, getOpportunities, updateOpportunity } from '../services/api'
 import '../styles/Dashboard.css'
 
 const metrics = [
@@ -17,9 +18,6 @@ const checklist = [
   'Technical interview prep in progress',
 ]
 
-const LOCAL_STORAGE_KEY = 'placement-opportunities'
-const RECENTLY_VIEWED_KEY = 'placement-recently-viewed'
-const ACTIVITY_KEY = 'placement-activity'
 const SESSION_SEARCH_KEY = 'placement-search-term'
 
 const defaultFormState = {
@@ -61,57 +59,22 @@ function DashboardOverview() {
       setError('')
 
       try {
-        const savedRecords = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]')
-        const savedRecentlyViewed = JSON.parse(localStorage.getItem(RECENTLY_VIEWED_KEY) || '[]')
-        const savedActivity = JSON.parse(localStorage.getItem(ACTIVITY_KEY) || '[]')
+        const params = searchTerm ? { search: searchTerm.trim() } : {}
+        const response = await getOpportunities(params)
 
-        if (Array.isArray(savedRecords)) {
-          setRecords(savedRecords)
-        }
-
-        if (Array.isArray(savedRecentlyViewed)) {
-          setRecentlyViewed(savedRecentlyViewed)
-        }
-
-        if (Array.isArray(savedActivity)) {
-          setActivityLog(savedActivity)
-        }
-
-        if (Array.isArray(savedRecords) && savedRecords.length > 0) {
-          setLoading(false)
-          return
-        }
-
-        const response = await fetch('/opportunities.json')
-        if (!response.ok) {
-          throw new Error('Unable to load placement opportunities right now.')
-        }
-
-        const data = await response.json()
-        const nextRecords = Array.isArray(data) ? data : []
-        setRecords(nextRecords)
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(nextRecords))
+        setRecords(Array.isArray(response.data) ? response.data : [])
       } catch (err) {
-        setError(err.message || 'Failed to fetch data.')
+        setError(err.message || 'Failed to fetch data from the backend.')
       } finally {
         setLoading(false)
       }
     }
 
     loadRecords()
-  }, [refreshSignal])
-
-  const saveRecords = (nextRecords, nextRecentlyViewed = recentlyViewed) => {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(nextRecords))
-    localStorage.setItem(RECENTLY_VIEWED_KEY, JSON.stringify(nextRecentlyViewed))
-  }
+  }, [refreshSignal, searchTerm])
 
   const addActivity = (message) => {
-    setActivityLog((current) => {
-      const next = [{ id: Date.now(), message, at: new Date().toLocaleString() }, ...current].slice(0, 5)
-      localStorage.setItem(ACTIVITY_KEY, JSON.stringify(next))
-      return next
-    })
+    setActivityLog((current) => [{ id: Date.now(), message, at: new Date().toLocaleString() }, ...current].slice(0, 5))
   }
 
   const filteredRecords = records.filter((record) => {
@@ -131,7 +94,7 @@ function DashboardOverview() {
     setFormData((current) => ({ ...current, [name]: value }))
   }
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
 
     if (!formData.title.trim() || !formData.company.trim() || !formData.category.trim() || !formData.description.trim()) {
@@ -139,12 +102,11 @@ function DashboardOverview() {
       return
     }
 
-    const nextRecord = {
-      ...formData,
-      id: editingId || Date.now(),
+    const payload = {
       title: formData.title.trim(),
       company: formData.company.trim(),
       category: formData.category.trim(),
+      status: formData.status,
       location: formData.location.trim(),
       eligibility: formData.eligibility.trim(),
       deadline: formData.deadline.trim(),
@@ -153,26 +115,39 @@ function DashboardOverview() {
       image: formData.image.trim(),
     }
 
-    let nextRecords = []
-
-    if (editingId) {
-      nextRecords = records.map((record) => (String(record.id) === String(editingId) ? nextRecord : record))
-      setStatusMessage(`Updated ${nextRecord.title} in local storage.`)
-      addActivity(`Updated ${nextRecord.title}`)
-    } else {
-      nextRecords = [nextRecord, ...records]
-      setStatusMessage(`Added ${nextRecord.title} to your local records.`)
-      addActivity(`Added ${nextRecord.title}`)
-    }
-
-    setRecords(nextRecords)
-    saveRecords(nextRecords)
-    resetForm()
+    setLoading(true)
     setError('')
+
+    try {
+      if (editingId) {
+        const response = await updateOpportunity(editingId, payload)
+        const updatedRecord = response.data
+        setRecords((current) =>
+          current.map((record) =>
+            String(record.id || record._id) === String(editingId) ? updatedRecord : record
+          )
+        )
+        setStatusMessage(`Updated ${updatedRecord.title} successfully.`)
+        addActivity(`Updated ${updatedRecord.title}`)
+      } else {
+        const response = await createOpportunity(payload)
+        const createdRecord = response.data
+        setRecords((current) => [createdRecord, ...current])
+        setStatusMessage(`Added ${createdRecord.title} successfully.`)
+        addActivity(`Added ${createdRecord.title}`)
+      }
+
+      resetForm()
+      setError('')
+    } catch (err) {
+      setError(err.message || 'Unable to save the record.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleEdit = (record) => {
-    setEditingId(record.id)
+    setEditingId(record.id || record._id)
     setFormData({
       ...defaultFormState,
       title: record.title || '',
@@ -189,43 +164,65 @@ function DashboardOverview() {
     setStatusMessage('Editing existing record. Update the form and save changes.')
   }
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (!deleteTarget) {
       return
     }
 
     const target = deleteTarget
-    const nextRecords = records.filter((record) => String(record.id) !== String(target.id))
-    setRecords(nextRecords)
-    saveRecords(nextRecords)
-    setPendingDelete(target)
-    setDeleteTarget(null)
-    setStatusMessage(`Removed ${target.title} from local storage.`)
-    addActivity(`Deleted ${target.title}`)
+    setLoading(true)
+    setError('')
+
+    try {
+      await deleteOpportunity(target.id || target._id)
+      const nextRecords = records.filter(
+        (record) => String(record.id || record._id) !== String(target.id || target._id)
+      )
+      setRecords(nextRecords)
+      setPendingDelete(target)
+      setDeleteTarget(null)
+      setStatusMessage(`Deleted ${target.title} successfully.`)
+      addActivity(`Deleted ${target.title}`)
+    } catch (err) {
+      setError(err.message || 'Unable to delete the record.')
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const undoDelete = () => {
+  const undoDelete = async () => {
     if (!pendingDelete) {
       return
     }
 
-    const nextRecords = [pendingDelete, ...records]
-    setRecords(nextRecords)
-    saveRecords(nextRecords)
-    setPendingDelete(null)
-    setStatusMessage(`Restored ${pendingDelete.title}.`)
-    addActivity(`Restored ${pendingDelete.title}`)
+    setLoading(true)
+    setError('')
+
+    try {
+      const payload = { ...pendingDelete }
+      delete payload.id
+      delete payload._id
+
+      const response = await createOpportunity(payload)
+      setRecords((current) => [response.data, ...current])
+      setPendingDelete(null)
+      setStatusMessage(`Restored ${response.data.title}.`)
+      addActivity(`Restored ${response.data.title}`)
+    } catch (err) {
+      setError(err.message || 'Unable to restore the record.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleView = (record) => {
     const nextViewed = [
-      { id: record.id, title: record.title, category: record.category },
-      ...recentlyViewed.filter((item) => item.id !== record.id),
+      { id: record.id || record._id, title: record.title, category: record.category },
+      ...recentlyViewed.filter((item) => String(item.id) !== String(record.id || record._id)),
     ].slice(0, 4)
 
     setRecentlyViewed(nextViewed)
-    localStorage.setItem(RECENTLY_VIEWED_KEY, JSON.stringify(nextViewed))
-    navigate(`/details/${record.id}`)
+    navigate(`/details/${record.id || record._id}`)
   }
 
   const handleExport = () => {
@@ -255,14 +252,18 @@ function DashboardOverview() {
         throw new Error('The selected file does not contain a valid JSON array of records.')
       }
 
-      const nextRecords = [
-        ...importedRecords,
-        ...records.filter((record) => !importedRecords.some((item) => String(item.id) === String(record.id))),
-      ]
+      const createdRecords = await Promise.all(
+        importedRecords.map(async (item) => {
+          const payload = { ...item }
+          delete payload.id
+          delete payload._id
+          const response = await createOpportunity(payload)
+          return response.data
+        })
+      )
 
-      setRecords(nextRecords)
-      saveRecords(nextRecords)
-      setStatusMessage('Imported records successfully.')
+      setRecords((current) => [...createdRecords, ...current])
+      setStatusMessage('Imported records to backend successfully.')
       addActivity('Imported records from JSON')
     } catch (err) {
       setError(err.message || 'Unable to import the selected JSON file.')
@@ -282,8 +283,8 @@ function DashboardOverview() {
       <section className="dashboard-section">
         <div className="section-heading">
           <div>
-            <p className="dashboard-hero__eyebrow">Local Records</p>
-            <h3>Manage placement opportunities with persistence and CRUD</h3>
+            <p className="dashboard-hero__eyebrow">Placement Records</p>
+            <h3>Manage placement opportunities with backend-driven CRUD</h3>
           </div>
           <div className="button-row">
             <button className="btn btn-secondary" type="button" onClick={() => setRefreshSignal((value) => value + 1)}>
@@ -381,7 +382,7 @@ function DashboardOverview() {
           </form>
 
           <div className="records-panel">
-            {loading && !records.length ? <div className="loading-state">Loading opportunities from local storage...</div> : null}
+            {loading && !records.length ? <div className="loading-state">Loading opportunities from the backend...</div> : null}
 
             {!loading && !error && !filteredRecords.length ? (
               <div className="empty-state">No opportunities match your search right now.</div>
@@ -389,7 +390,7 @@ function DashboardOverview() {
 
             <div className="opportunity-grid">
               {filteredRecords.map((record) => (
-                <article className="opportunity-card" key={record.id}>
+                <article className="opportunity-card" key={record.id || record._id}>
                   <div className="opportunity-card__top">
                     <span className="status-pill">{record.category}</span>
                     <span className="status-pill subtle">{record.status}</span>
@@ -429,7 +430,7 @@ function DashboardOverview() {
         <div className="modal-backdrop" role="dialog" aria-modal="true">
           <div className="modal-card">
             <h3>Delete this record?</h3>
-            <p>This action removes {deleteTarget.title} from local storage immediately.</p>
+            <p>This action removes {deleteTarget.title} from the backend immediately.</p>
             <div className="modal-actions">
               <button className="btn btn-danger" type="button" onClick={confirmDelete}>
                 Confirm Delete
@@ -474,7 +475,7 @@ function DashboardOverview() {
         <div className="section-heading">
           <div>
             <p className="dashboard-hero__eyebrow">Recent Activity</p>
-            <h3>Latest local storage actions</h3>
+            <h3>Latest activity from backend operations</h3>
           </div>
         </div>
         <ul className="recent-list compact-list">
