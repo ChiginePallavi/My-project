@@ -38,8 +38,15 @@ function DashboardOverview() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [searchTerm, setSearchTerm] = useState(() => sessionStorage.getItem(SESSION_SEARCH_KEY) || '')
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(() => sessionStorage.getItem(SESSION_SEARCH_KEY) || '')
   const [recentlyViewed, setRecentlyViewed] = useState([])
   const [refreshSignal, setRefreshSignal] = useState(0)
+  const [page, setPage] = useState(1)
+  const [limit, setLimit] = useState(6)
+  const [sortBy, setSortBy] = useState('createdAt')
+  const [sortOrder, setSortOrder] = useState('desc')
+  const [totalPages, setTotalPages] = useState(1)
+  const [totalRecords, setTotalRecords] = useState(0)
   const [formData, setFormData] = useState(defaultFormState)
   const [statusMessage, setStatusMessage] = useState('')
   const [deleteTarget, setDeleteTarget] = useState(null)
@@ -51,6 +58,15 @@ function DashboardOverview() {
 
   useEffect(() => {
     sessionStorage.setItem(SESSION_SEARCH_KEY, searchTerm)
+  }, [searchTerm])
+
+  useEffect(() => {
+    const debounce = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm.trim())
+      setPage(1)
+    }, 400)
+
+    return () => clearTimeout(debounce)
   }, [searchTerm])
 
   useEffect(() => {
@@ -66,33 +82,62 @@ function DashboardOverview() {
       setError('')
 
       try {
-        const params = searchTerm ? { search: searchTerm.trim() } : {}
-        const response = await getOpportunities(params)
+        const params = {
+          page,
+          limit,
+          sort: sortBy,
+          order: sortOrder,
+        }
 
-        setRecords(Array.isArray(response.data) ? response.data : [])
+        if (debouncedSearchTerm) {
+          params.search = debouncedSearchTerm
+        }
+
+        const response = await getOpportunities(params)
+        const data = Array.isArray(response.data) ? response.data : []
+
+        setRecords(data)
+        setTotalRecords(response.total || 0)
+        setTotalPages(response.pages || 1)
+
+        if (response.pages && page > response.pages) {
+          setPage(response.pages)
+        }
       } catch (err) {
         setError(err.message || 'Failed to fetch data from the backend.')
+        setRecords([])
+        setTotalRecords(0)
+        setTotalPages(1)
       } finally {
         setLoading(false)
       }
     }
 
     loadRecords()
-  }, [refreshSignal, searchTerm])
+  }, [refreshSignal, page, limit, sortBy, sortOrder, debouncedSearchTerm])
 
   const addActivity = (message) => {
     setActivityLog((current) => [{ id: Date.now(), message, at: new Date().toLocaleString() }, ...current].slice(0, 5))
   }
 
-  const filteredRecords = records.filter((record) => {
-    const query = searchTerm.toLowerCase()
-    const haystack = `${record.title} ${record.company} ${record.category} ${record.description} ${record.eligibility} ${record.location}`.toLowerCase()
-    return haystack.includes(query)
-  })
-
   const resetForm = () => {
     setFormData(defaultFormState)
     setStatusMessage('')
+  }
+
+  const handlePageChange = (nextPage) => {
+    if (nextPage < 1 || nextPage > totalPages) {
+      return
+    }
+    setPage(nextPage)
+  }
+
+  const handleResetFilters = () => {
+    setSearchTerm('')
+    setSortBy('createdAt')
+    setSortOrder('desc')
+    setLimit(6)
+    setPage(1)
   }
 
   const handleInputChange = (event) => {
@@ -284,10 +329,45 @@ function DashboardOverview() {
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
           />
+          <div className="toolbar-controls">
+            <label>
+              Sort by
+              <select value={sortBy} onChange={(event) => setSortBy(event.target.value)} disabled={loading}>
+                <option value="createdAt">Newest</option>
+                <option value="title">Title</option>
+                <option value="company">Company</option>
+                <option value="category">Category</option>
+                <option value="deadline">Deadline</option>
+              </select>
+            </label>
+            <label>
+              Order
+              <select value={sortOrder} onChange={(event) => setSortOrder(event.target.value)} disabled={loading}>
+                <option value="desc">Descending</option>
+                <option value="asc">Ascending</option>
+              </select>
+            </label>
+            <label>
+              Page size
+              <select value={limit} onChange={(event) => { setLimit(Number(event.target.value)); setPage(1) }} disabled={loading}>
+                <option value={5}>5</option>
+                <option value={6}>6</option>
+                <option value={10}>10</option>
+              </select>
+            </label>
+            <button className="btn btn-secondary" type="button" onClick={handleResetFilters} disabled={loading}>
+              Reset
+            </button>
+          </div>
         </div>
 
         {statusMessage ? <div className="success-state">{statusMessage}</div> : null}
         {error ? <div className="error-state">{error}</div> : null}
+        <div className="record-summary">
+          <span>
+            Showing {totalRecords === 0 ? 0 : (page - 1) * limit + 1} - {Math.min(page * limit, totalRecords)} of {totalRecords} records
+          </span>
+        </div>
 
         <div className="management-grid">
           <form className="crud-form" onSubmit={handleSubmit}>
@@ -355,12 +435,12 @@ function DashboardOverview() {
           <div className="records-panel">
             {loading && !records.length ? <div className="loading-state">Loading opportunities from the backend...</div> : null}
 
-            {!loading && !error && !filteredRecords.length ? (
-              <div className="empty-state">No opportunities match your search right now.</div>
+            {!loading && !error && !records.length ? (
+              <div className="empty-state">No records were found for your search criteria.</div>
             ) : null}
 
             <div className="opportunity-grid">
-              {filteredRecords.map((record) => (
+              {records.map((record) => (
                 <article className="opportunity-card" key={record.id || record._id}>
                   <div className="opportunity-card__top">
                     <span className="status-pill">{record.category}</span>
@@ -392,6 +472,17 @@ function DashboardOverview() {
                   </div>
                 </article>
               ))}
+            </div>
+            <div className="pagination-controls">
+              <button className="btn btn-secondary" type="button" onClick={() => handlePageChange(page - 1)} disabled={loading || page <= 1}>
+                Previous
+              </button>
+              <span className="page-indicator">
+                Page {page} of {Math.max(totalPages, 1)}
+              </span>
+              <button className="btn btn-secondary" type="button" onClick={() => handlePageChange(page + 1)} disabled={loading || page >= totalPages}>
+                Next
+              </button>
             </div>
           </div>
         </div>
