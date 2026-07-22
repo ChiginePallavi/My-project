@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import StatCard from '../components/StatCard'
 import InfoCard from '../components/InfoCard'
-import { createOpportunity, deleteOpportunity, getOpportunityById, getOpportunities, updateOpportunity } from '../services/api'
+import { createOpportunity, deleteOpportunity, getOpportunities } from '../services/api'
 import '../styles/Dashboard.css'
 
 const metrics = [
@@ -41,17 +41,24 @@ function DashboardOverview() {
   const [recentlyViewed, setRecentlyViewed] = useState([])
   const [refreshSignal, setRefreshSignal] = useState(0)
   const [formData, setFormData] = useState(defaultFormState)
-  const [editingId, setEditingId] = useState(null)
   const [statusMessage, setStatusMessage] = useState('')
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [pendingDelete, setPendingDelete] = useState(null)
   const [activityLog, setActivityLog] = useState([])
   const fileInputRef = useRef(null)
   const navigate = useNavigate()
+  const location = useLocation()
 
   useEffect(() => {
     sessionStorage.setItem(SESSION_SEARCH_KEY, searchTerm)
   }, [searchTerm])
+
+  useEffect(() => {
+    if (location.state?.success) {
+      setStatusMessage(location.state.success)
+      navigate(location.pathname, { replace: true, state: {} })
+    }
+  }, [location, navigate])
 
   useEffect(() => {
     const loadRecords = async () => {
@@ -84,7 +91,6 @@ function DashboardOverview() {
   })
 
   const resetForm = () => {
-    setEditingId(null)
     setFormData(defaultFormState)
     setStatusMessage('')
   }
@@ -119,24 +125,11 @@ function DashboardOverview() {
     setError('')
 
     try {
-      if (editingId) {
-        const response = await updateOpportunity(editingId, payload)
-        const updatedRecord = response.data
-        setRecords((current) =>
-          current.map((record) =>
-            String(record.id || record._id) === String(editingId) ? updatedRecord : record
-          )
-        )
-        setStatusMessage(`Updated ${updatedRecord.title} successfully.`)
-        addActivity(`Updated ${updatedRecord.title}`)
-      } else {
-        const response = await createOpportunity(payload)
-        const createdRecord = response.data
-        setRecords((current) => [createdRecord, ...current])
-        setStatusMessage(`Added ${createdRecord.title} successfully.`)
-        addActivity(`Added ${createdRecord.title}`)
-      }
-
+      const response = await createOpportunity(payload)
+      const createdRecord = response.data
+      setRecords((current) => [createdRecord, ...current])
+      setStatusMessage(`Added ${createdRecord.title} successfully.`)
+      addActivity(`Added ${createdRecord.title}`)
       resetForm()
       setError('')
     } catch (err) {
@@ -146,23 +139,6 @@ function DashboardOverview() {
     }
   }
 
-  const handleEdit = (record) => {
-    setEditingId(record.id || record._id)
-    setFormData({
-      ...defaultFormState,
-      title: record.title || '',
-      company: record.company || '',
-      category: record.category || '',
-      status: record.status || 'Open',
-      location: record.location || '',
-      eligibility: record.eligibility || '',
-      deadline: record.deadline || '',
-      package: record.package || '',
-      description: record.description || '',
-      image: record.image || '',
-    })
-    setStatusMessage('Editing existing record. Update the form and save changes.')
-  }
 
   const confirmDelete = async () => {
     if (!deleteTarget) {
@@ -317,8 +293,8 @@ function DashboardOverview() {
           <form className="crud-form" onSubmit={handleSubmit}>
             <div className="section-heading compact">
               <div>
-                <p className="dashboard-hero__eyebrow">Add or Edit</p>
-                <h4>{editingId ? 'Update an existing opportunity' : 'Create a new opportunity'}</h4>
+                <p className="dashboard-hero__eyebrow">Add New Opportunity</p>
+                <h4>Create a new placement record using the backend API</h4>
               </div>
             </div>
 
@@ -370,14 +346,9 @@ function DashboardOverview() {
             </div>
 
             <div className="form-actions">
-              <button className="btn btn-primary" type="submit">
-                {editingId ? 'Save Changes' : 'Add Record'}
+              <button className="btn btn-primary" type="submit" disabled={loading}>
+                {loading ? 'Saving...' : 'Add Record'}
               </button>
-              {editingId ? (
-                <button className="btn btn-secondary" type="button" onClick={resetForm}>
-                  Cancel
-                </button>
-              ) : null}
             </div>
           </form>
 
@@ -409,13 +380,13 @@ function DashboardOverview() {
                     <span>Package: {record.package}</span>
                   </div>
                   <div className="card-actions">
-                    <button className="btn btn-primary" type="button" onClick={() => handleView(record)}>
+                    <button className="btn btn-primary" type="button" onClick={() => handleView(record)} disabled={loading}>
                       View
                     </button>
-                    <button className="btn btn-secondary" type="button" onClick={() => handleEdit(record)}>
+                    <button className="btn btn-secondary" type="button" onClick={() => navigate(`/edit/${record.id || record._id}`)} disabled={loading}>
                       Edit
                     </button>
-                    <button className="btn btn-danger" type="button" onClick={() => setDeleteTarget(record)}>
+                    <button className="btn btn-danger" type="button" onClick={() => setDeleteTarget(record)} disabled={loading}>
                       Delete
                     </button>
                   </div>

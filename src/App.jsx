@@ -7,6 +7,7 @@ import Register from './pages/Register'
 import Login from './pages/login/login.jsx'
 import About from './pages/About'
 import Details from './pages/Details'
+import EditOpportunity from './pages/EditOpportunity'
 import NotFound from './pages/NotFound'
 import './App.css'
 
@@ -113,6 +114,14 @@ function AppRoutes() {
             element={
               <ProtectedRoute isLoggedIn={isLoggedIn}>
                 <Details />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/edit/:id"
+            element={
+              <ProtectedRoute isLoggedIn={isLoggedIn}>
+                <EditOpportunity />
               </ProtectedRoute>
             }
           />
