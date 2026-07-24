@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
-import Opportunity from '../models/opportunity.js';
+import Opportunity from '../models/Opportunity.js';
 import User from '../models/user.js';
 import connectDB from '../config/db.js';
 
