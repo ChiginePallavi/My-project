@@ -2,17 +2,16 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1.25rem;
-  margin: 0.5rem 0;
 }
 
 .feature-card {
   padding: 1.5rem;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-top: 3px solid var(--accent);
   border-radius: var(--radius-lg);
   text-align: center;
   box-shadow: var(--shadow-md);
+  backdrop-filter: blur(16px) saturate(180%);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -31,6 +30,7 @@
   height: 60px;
   border-radius: var(--radius-full);
   background: var(--accent-soft);
+  box-shadow: var(--shadow-sm);
 }
 
 .feature-card h3 {

@@ -5,6 +5,7 @@ import InfoCard from '../../components/common/InfoCard'
 import OpportunityCard from './OpportunityCard'
 import OpportunityForm from './OpportunityForm'
 import DeleteModal from './DeleteModal'
+import { SkeletonCard } from '../../components/common/Skeleton'
 import { createOpportunity, deleteOpportunity, getOpportunities } from '../../services/api'
 import '../../styles/Dashboard.css'
 
@@ -400,7 +401,13 @@ function DashboardOverview(props) {
           ) : null}
 
           <div className="records-panel">
-            {loading && !records.length ? <div className="loading-state">Loading opportunities from the backend...</div> : null}
+            {loading && !records.length ? (
+              <div className="opportunity-grid">
+                {[1, 2, 3, 4, 5, 6].map((n) => (
+                  <SkeletonCard key={n} />
+                ))}
+              </div>
+            ) : null}
 
             {!loading && !error && !records.length ? (
               <div className="empty-state">No records were found for your search criteria.</div>

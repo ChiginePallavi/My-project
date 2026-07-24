@@ -35,6 +35,9 @@ function Register() {
   const [submitSuccess, setSubmitSuccess] = useState('')
   const [mode, setMode] = useState('create')
 
+  const [isDraggingImage, setIsDraggingImage] = useState(false)
+  const [isDraggingResume, setIsDraggingResume] = useState(false)
+
   useEffect(() => {
     if (location.state?.mode && location.state?.userData) {
       setMode(location.state.mode)
@@ -125,6 +128,50 @@ function Register() {
     setErrors((current) => ({ ...current, [name]: '' }))
   }
 
+  const handleImageDrop = (event) => {
+    event.preventDefault()
+    setIsDraggingImage(false)
+    const file = event.dataTransfer.files?.[0]
+    if (file && file.type.startsWith('image/')) {
+      const previewUrl = URL.createObjectURL(file)
+      setForm((current) => ({
+        ...current,
+        profileImage: previewUrl,
+        profileImageFile: file,
+      }))
+      setErrors((current) => ({ ...current, profileImage: '' }))
+    }
+  }
+
+  const handleResumeDrop = (event) => {
+    event.preventDefault()
+    setIsDraggingResume(false)
+    const file = event.dataTransfer.files?.[0]
+    if (file) {
+      setForm((current) => ({
+        ...current,
+        resume: file,
+      }))
+      setErrors((current) => ({ ...current, resume: '' }))
+    }
+  }
+
+  const removeResume = (event) => {
+    event.stopPropagation()
+    setForm((current) => ({ ...current, resume: null }))
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }
+
+  const removeImage = (event) => {
+    event.stopPropagation()
+    setForm((current) => ({ ...current, profileImage: '', profileImageFile: null }))
+    if (imageInputRef.current) {
+      imageInputRef.current.value = ''
+    }
+  }
+
   const handleSubmit = async (event) => {
     event.preventDefault()
     setSubmitSuccess('')
@@ -150,6 +197,12 @@ function Register() {
   }
 
   const isReadOnly = mode === 'view'
+
+  const formatFileSize = (bytes) => {
+    if (!bytes) return ''
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+  }
 
   return (
     <main className="page register-page">
@@ -183,21 +236,47 @@ function Register() {
           <div className="form-grid">
             <label className="form-field full-width">
               <span>Profile Image Upload</span>
-              <div className="file-input-wrapper">
-                <input
-                  ref={imageInputRef}
-                  type="file"
-                  name="profileImage"
-                  accept="image/*"
-                  onChange={handleChange}
-                  disabled={isReadOnly}
-                />
+              <input
+                ref={imageInputRef}
+                type="file"
+                name="profileImage"
+                accept="image/*"
+                onChange={handleChange}
+                disabled={isReadOnly}
+                className="sr-only"
+              />
+              <div
+                className={`dropzone ${isDraggingImage ? 'dropzone--dragging' : ''}`}
+                onClick={() => !isReadOnly && imageInputRef.current?.click()}
+                onDragOver={(e) => { e.preventDefault(); setIsDraggingImage(true) }}
+                onDragLeave={() => setIsDraggingImage(false)}
+                onDrop={handleImageDrop}
+              >
                 {form.profileImage ? (
                   <div className="profile-preview">
                     <img src={form.profileImage} alt="Profile Preview" />
+                    <div style={{ textAlign: 'left' }}>
+                      <p className="file-selected-name">
+                        {form.profileImageFile ? form.profileImageFile.name : 'Uploaded Avatar Photo'}
+                      </p>
+                      {!isReadOnly && (
+                        <button className="file-remove-btn" type="button" onClick={removeImage}>
+                          Remove Photo
+                        </button>
+                      )}
+                    </div>
                   </div>
                 ) : (
-                  <p className="file-hint">Select a photo for your account profile.</p>
+                  <>
+                    <div className="circular-icon-badge">📸</div>
+                    <p className="dropzone__title">Click or Drag & Drop Profile Photo</p>
+                    <p className="dropzone__hint">Upload your photo for application verification</p>
+                    <div className="format-badges">
+                      <span className="format-pill">JPG</span>
+                      <span className="format-pill">PNG</span>
+                      <span className="format-pill">WEBP</span>
+                    </div>
+                  </>
                 )}
               </div>
             </label>
@@ -341,20 +420,49 @@ function Register() {
             </label>
 
             <label className="form-field full-width">
-              <span>Resume File</span>
-              <div className="file-input-wrapper">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  name="resume"
-                  accept=".pdf,.doc,.docx"
-                  onChange={handleChange}
-                  disabled={isReadOnly}
-                />
+              <span>Resume Document Upload</span>
+              <input
+                ref={fileInputRef}
+                type="file"
+                name="resume"
+                accept=".pdf,.doc,.docx"
+                onChange={handleChange}
+                disabled={isReadOnly}
+                className="sr-only"
+              />
+              <div
+                className={`dropzone ${isDraggingResume ? 'dropzone--dragging' : ''}`}
+                onClick={() => !isReadOnly && fileInputRef.current?.click()}
+                onDragOver={(e) => { e.preventDefault(); setIsDraggingResume(true) }}
+                onDragLeave={() => setIsDraggingResume(false)}
+                onDrop={handleResumeDrop}
+              >
                 {form.resume ? (
-                  <p className="file-selected">Selected: {form.resume.name}</p>
+                  <div className="file-selected-card">
+                    <div className="file-selected-info">
+                      <span style={{ fontSize: '1.5rem' }}>📄</span>
+                      <div>
+                        <p className="file-selected-name">{form.resume.name}</p>
+                        <p className="file-selected-size">{formatFileSize(form.resume.size)}</p>
+                      </div>
+                    </div>
+                    {!isReadOnly && (
+                      <button className="file-remove-btn" type="button" onClick={removeResume}>
+                        Remove Resume
+                      </button>
+                    )}
+                  </div>
                 ) : (
-                  <p className="file-hint">Upload PDF or DOCX format (Max 5MB)</p>
+                  <>
+                    <div className="dropzone__icon">📄</div>
+                    <p className="dropzone__title">Click or Drag & Drop Resume File</p>
+                    <p className="dropzone__hint">Upload your official resume for recruiter review</p>
+                    <div className="format-badges">
+                      <span className="format-pill">PDF</span>
+                      <span className="format-pill">DOCX</span>
+                      <span className="format-pill">MAX 5MB</span>
+                    </div>
+                  </>
                 )}
               </div>
             </label>

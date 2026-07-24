@@ -11,10 +11,9 @@
   max-width: 440px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-top: 4px solid var(--accent);
   border-radius: var(--radius-lg);
   padding: 2rem 1.75rem;
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-sm);
 }
 
 .login-card__header {
@@ -23,10 +22,12 @@
 }
 
 .login-card__header h2 {
-  font-size: 1.4rem;
+  font-size: 1.35rem;
   margin-top: 0.2rem;
   margin-bottom: 0.4rem;
   color: var(--text-primary);
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 .login-card__header p {

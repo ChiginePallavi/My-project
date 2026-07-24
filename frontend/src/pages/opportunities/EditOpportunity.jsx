@@ -59,6 +59,14 @@ function EditOpportunity() {
     setFormData((current) => ({ ...current, [name]: value }))
   }
 
+  if (loading && !formData.title) {
+    return (
+      <main className="page edit-page">
+        <SkeletonCard />
+      </main>
+    )
+  }
+
   const handleSubmit = async (event) => {
     event.preventDefault()
 

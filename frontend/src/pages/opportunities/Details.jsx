@@ -3,6 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { getOpportunityById } from '../../services/api'
 import '../../styles/Dashboard.css'
 
+import { SkeletonCard, SkeletonText } from '../../components/common/Skeleton'
+
 function Details() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -33,7 +35,7 @@ function Details() {
   if (loading) {
     return (
       <main className="page details-page">
-        <div className="loading-state">Loading record details from MongoDB...</div>
+        <SkeletonCard />
       </main>
     )
   }

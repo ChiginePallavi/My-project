@@ -23,9 +23,6 @@ function Home() {
 
   return (
     <main className="page home-page">
-      <div className="decorative-blob blob-1" />
-      <div className="decorative-blob blob-2" />
-
       <HeroSection
         highlight="Placement Intelligence"
         title="Predict placement readiness with clarity and precision"
