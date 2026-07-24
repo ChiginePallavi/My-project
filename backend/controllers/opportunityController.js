@@ -1,9 +1,9 @@
-import Opportunity from '../models/Opportunity.js';
+import Opportunity from '../models/opportunity.js';
 
 const normalizeText = (value = '') => value.toString().trim().toLowerCase();
 
 const validateOpportunityPayload = (payload) => {
-  const requiredFields = ['title', 'company', 'category', 'description', 'eligibility', 'location', 'deadline', 'package'];
+  const requiredFields = ['title', 'company', 'category', 'description'];
   const missing = requiredFields.filter((field) => !payload[field] || !payload[field].toString().trim());
 
   if (missing.length > 0) {
@@ -18,29 +18,17 @@ const validateOpportunityPayload = (payload) => {
 
 export const getAllOpportunities = async (req, res, next) => {
   try {
-    const {
-      category,
-      status,
-      location,
-      search = '',
-      page = 1,
-      limit = 10,
-      sort = 'createdAt',
-      order = 'desc'
-    } = req.query;
-
+    const { search = '', page = 1, limit = 10, sort = 'createdAt', order = 'desc' } = req.query;
     const query = {};
 
-    if (category) query.category = new RegExp(`^${normalizeText(category)}$`, 'i');
-    if (status) query.status = new RegExp(`^${normalizeText(status)}$`, 'i');
-    if (location) query.location = new RegExp(normalizeText(location), 'i');
-
     if (search) {
+      const regex = new RegExp(search.trim(), 'i');
       query.$or = [
-        { title: new RegExp(search, 'i') },
-        { company: new RegExp(search, 'i') },
-        { description: new RegExp(search, 'i') },
-        { category: new RegExp(search, 'i') }
+        { title: regex },
+        { company: regex },
+        { category: regex },
+        { location: regex },
+        { description: regex }
       ];
     }
 
@@ -62,7 +50,7 @@ export const getAllOpportunities = async (req, res, next) => {
       count: opportunities.length,
       total,
       page: pageNumber,
-      pages: Math.ceil(total / pageSize),
+      pages: Math.ceil(total / pageSize) || 1,
       data: opportunities
     });
   } catch (error) {
@@ -80,12 +68,13 @@ export const searchOpportunities = async (req, res, next) => {
       return res.status(200).json({ success: true, count: opportunities.length, data: opportunities });
     }
 
+    const regex = new RegExp(searchTerm, 'i');
     const opportunities = await Opportunity.find({
       $or: [
-        { title: new RegExp(searchTerm, 'i') },
-        { company: new RegExp(searchTerm, 'i') },
-        { description: new RegExp(searchTerm, 'i') },
-        { category: new RegExp(searchTerm, 'i') }
+        { title: regex },
+        { company: regex },
+        { category: regex },
+        { location: regex }
       ]
     }).sort({ createdAt: -1 });
 
@@ -118,7 +107,7 @@ export const createOpportunity = async (req, res, next) => {
     }
 
     const opportunity = await Opportunity.create(req.body);
-    res.status(201).json({ success: true, data: opportunity });
+    res.status(201).json({ success: true, message: 'Opportunity created successfully', data: opportunity });
   } catch (error) {
     next(error);
   }
@@ -135,7 +124,7 @@ export const updateOpportunity = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Opportunity not found' });
     }
 
-    res.status(200).json({ success: true, data: opportunity });
+    res.status(200).json({ success: true, message: 'Opportunity updated successfully', data: opportunity });
   } catch (error) {
     next(error);
   }
@@ -154,5 +143,3 @@ export const deleteOpportunity = async (req, res, next) => {
     next(error);
   }
 };
-
-
