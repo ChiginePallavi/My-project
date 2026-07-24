@@ -3,9 +3,21 @@ import axios from 'axios';
 const TOKEN_KEY = 'placement-jwt-token';
 const AUTH_STORAGE_KEY = 'placement-auth-user';
 
+const getApiBaseUrl = () => {
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+
+  if (typeof window !== 'undefined' && window.location.hostname.includes('github.io')) {
+    return 'https://placement-eligibility-predictor-backend.onrender.com/api';
+  }
+
+  return '/api';
+};
+
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api',
-  timeout: 10000,
+  baseURL: getApiBaseUrl(),
+  timeout: 30000,
 });
 
 // Bonus 1: Axios Request Interceptor - Attach JWT Token automatically
@@ -35,13 +47,13 @@ apiClient.interceptors.response.use(
 const getErrorMessage = (error) => {
   if (error.response) {
     if (error.response.status === 502) {
-      return 'Backend server is unreachable (502 Bad Gateway). Please verify that the Express backend is running on port 5000.';
+      return 'Backend server is unreachable (502 Bad Gateway). Render backend may be starting up (takes ~30s on free tier). Please wait 30 seconds and refresh.';
     }
     return error.response.data?.message || `Server error (${error.response.status})`;
   }
 
   if (error.request) {
-    return 'Unable to reach the backend server. Please verify the Express API server is running on port 5000.';
+    return 'Unable to reach backend server. If using free tier (Render.com), the server may be waking up. Please wait 30 seconds and refresh.';
   }
 
   return error.message || 'An unexpected error occurred.';
