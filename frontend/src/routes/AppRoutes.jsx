@@ -43,7 +43,7 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         >
-          <Route index element={<Navigate to="/dashboard/overview" replace />} />
+          <Route index element={<Navigate to="overview" replace />} />
           <Route path="overview" element={<DashboardOverview activeUser={activeUser} />} />
           <Route path="profile" element={<DashboardProfile activeUser={activeUser} />} />
           <Route path="settings" element={<DashboardSettings />} />
