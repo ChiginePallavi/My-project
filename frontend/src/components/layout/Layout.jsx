@@ -28,7 +28,7 @@ function Layout({ isLoggedIn, onLogout, theme, onToggleTheme, activeUser }) {
   }, [location.pathname])
 
   return (
-    <>
+    <div className="app-shell">
       <Navbar
         isLoggedIn={isLoggedIn}
         onLogout={onLogout}
@@ -44,7 +44,7 @@ function Layout({ isLoggedIn, onLogout, theme, onToggleTheme, activeUser }) {
         </div>
       </div>
       <Footer />
-    </>
+    </div>
   )
 }
 

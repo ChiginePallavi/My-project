@@ -1,9 +1,16 @@
 .stat-card {
   background: var(--surface);
-  border-radius: 1rem;
-  padding: 1.25rem;
+  border-radius: var(--radius-lg);
+  padding: 1.35rem;
   border: 1px solid var(--border);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  border-top: 3px solid var(--accent);
+  box-shadow: var(--shadow-md);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
 }
 
 .stat-card__header {
@@ -15,18 +22,20 @@
 
 .stat-card__title {
   color: var(--text-muted);
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .stat-card__value {
-  font-size: 1.8rem;
-  font-weight: 700;
+  font-size: 1.85rem;
+  font-weight: 800;
   color: var(--text-primary);
   margin: 0.2rem 0;
 }
 
 .stat-card__detail {
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-size: 0.85rem;
 }

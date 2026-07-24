@@ -1,16 +1,20 @@
 .sidebar {
   width: 260px;
   background: var(--surface);
-  border-radius: 1rem;
-  padding: 1rem;
+  border-radius: var(--radius-lg);
+  padding: 1.2rem;
   border: 1px solid var(--border);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-md);
+  flex-shrink: 0;
 }
 
 .sidebar h2 {
   margin-top: 0;
-  font-size: 1rem;
-  color: var(--text-primary);
+  margin-bottom: 0.85rem;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
 }
 
 .sidebar ul {
@@ -25,9 +29,9 @@
 .sidebar__item {
   width: 100%;
   border: 1px solid var(--border);
-  border-radius: 0.75rem;
+  border-radius: var(--radius-md);
   background: var(--surface-soft);
-  padding: 0.8rem;
+  padding: 0.8rem 1rem;
   text-align: left;
   display: flex;
   flex-direction: column;
@@ -35,6 +39,11 @@
   cursor: pointer;
   color: var(--text-primary);
   text-decoration: none;
+  transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.sidebar__item:hover {
+  border-color: var(--border-focus);
 }
 
 .sidebar__item.active {
@@ -42,12 +51,43 @@
   background: var(--accent-soft);
 }
 
-.sidebar__item small {
-  color: var(--text-muted);
+.sidebar__item span {
+  font-weight: 600;
+  font-size: 0.95rem;
 }
 
-@media (max-width: 768px) {
+.sidebar__item small {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+/* Mobile & Tablet Responsive Horizontal Quick Ribbon */
+@media (max-width: 900px) {
   .sidebar {
     width: 100%;
+    padding: 0.75rem 1rem;
+  }
+
+  .sidebar h2 {
+    display: none;
+  }
+
+  .sidebar ul {
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 0.6rem;
+    padding-bottom: 0.25rem;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .sidebar__item {
+    width: auto;
+    min-width: 160px;
+    flex-shrink: 0;
+    padding: 0.6rem 0.85rem;
+  }
+
+  .sidebar__item small {
+    display: none; /* Hide small description on mobile to keep pills compact */
   }
 }
