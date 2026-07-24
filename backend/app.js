@@ -9,24 +9,9 @@ import { notFoundHandler, errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
 
-const allowedOrigins = [
-  'http://localhost:5173',
-  'http://127.0.0.1:5173',
-  'https://chiginepallavi.github.io',
-  process.env.FRONTEND_URL,
-].filter(Boolean);
-
-app.use(cors({
-  origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps or curl) or matching origins
-    if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.github.io')) {
-      return callback(null, true);
-    }
-    return callback(null, true); // Allow all origins for production flexibility
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-}));
+// Universal CORS middleware for REST API deployment
+app.use(cors());
+app.options('*', cors());
 
 app.use(requestLogger);
 app.use(express.json());
